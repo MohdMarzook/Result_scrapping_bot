@@ -27,7 +27,7 @@ Before you begin, ensure you have met the following requirements:
    ```
 3. Install the required dependencies:
    ```
-   pip install -r requirements.txt
+   python setup.py
    ```
 
 ## Usage
