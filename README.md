@@ -9,6 +9,10 @@ This script automates the process of retrieving exam results from the Anna Unive
 - Easy-to-use 
 - Fast and efficient result fetching
 
+## Demo
+
+![Demo video](demo.gif)
+
 ## Prerequisites
 
 Before you begin, ensure you have met the following requirements:

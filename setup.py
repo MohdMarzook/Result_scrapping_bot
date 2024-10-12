@@ -1,7 +1,7 @@
 import platform
 import subprocess
 import shutil
-import whisper,warnings
+import warnings
 from urllib3.exceptions import InsecureRequestWarning
 
 warnings.filterwarnings("ignore", category=FutureWarning)
@@ -11,12 +11,12 @@ warnings.simplefilter('ignore', InsecureRequestWarning)
 def install_dependences():
     print("Installing dependences from requirements.txt")
     command = subprocess.run(["pip", "install", '-r', "requirements.txt"])
+    import whisper
     try:
         model = whisper.load_model("small")
         model.transcribe("downloaded_file.mp3",language="en")
     except:
         pass
-
 
     os_name = platform.system()
     ffmpeg_path = shutil.which('ffmpeg')
