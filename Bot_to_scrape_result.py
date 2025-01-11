@@ -4,6 +4,9 @@ from bs4 import BeautifulSoup
 import whisper
 import warnings
 from urllib3.exceptions import InsecureRequestWarning
+import time
+import random
+
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=UserWarning, message="FP16 is not supported on CPU")
@@ -23,7 +26,7 @@ def colored_result(result):
         result = f"{green_color}{result}{color_end}"
     elif result[0] == "W":
         result = f"{warn_color}{result}{color_end}"
-    elif result == "U" or "RA":
+    elif result == "U" or "RA" or "UA":
         result = f"{red_color}{result}{color_end}"
     return result
 
@@ -83,7 +86,17 @@ def main(register_no,dob):
             break
          
         url = "http://coe1.annauniv.edu/home/index.php"
-        html = s.get(url)
+        dots = [" .", " ..", " ..."]
+        index = 0
+        while True:
+            try:
+                html = s.get(url,timeout=5)
+                print("\rLogged in...                                       ")
+                break
+            except:
+                print(f"\rCan't login to the site. Retrying{dots[index]}", end="   ", flush=True)
+                index = (index + 1) % len(dots)
+                time.sleep(random.uniform(0.1,1.0))
 
         # getting session token
         soup = BeautifulSoup(html.text, 'html.parser')
@@ -97,7 +110,17 @@ def main(register_no,dob):
         audio = audio.find("source")
         audio_link = audio["src"]
         audio_url = f"https://coe1.annauniv.edu/home/{audio_link}"
-        audio_data = s.get(audio_url,verify=False)
+
+        index = 0
+        while True:
+            try:
+                audio_data = s.get(audio_url,verify=False)
+                print("\rGot Captcha...                                  ")
+                break
+            except:
+                print(f"\rCan't get Captcha. Retrying{dots[index]}", end="   ", flush=True)
+                index = (index + 1) % len(dots)
+                time.sleep(random.uniform(0.1,1.0))
 
         # saving captcha audio
         with open('downloaded_file.mp3', 'wb') as file:
@@ -128,8 +151,17 @@ def main(register_no,dob):
             "security_code_student": capcha_string,
             "gos": "Login"
         }
+        index = 0
+        while True:
+            try:
+                html = s.post(post_url, data=payload,timeout=5)
+                print("\rConnected...                                ")
+                break
+            except:
+                print(f"\rCan't access the site. Retrying{dots[index]}", end="  ", flush=True)
+                index = (index + 1) % len(dots)
+                time.sleep(random.uniform(0.1,1.0))
 
-        html = s.post(post_url, data=payload)
         try:
             msg = find_between(html.text, "alert(\"", "\");")
             if "Invalid Register number or Date of birth or Profile Not Found ... " in msg:
@@ -155,7 +187,12 @@ def main(register_no,dob):
         "ExamResults": "", 
         "univ_reg_no": ""
     }
-    html = s.post(post_url, data=payload)
+    while True:
+        try:
+            html = s.post(post_url, data=payload,timeout=15)
+            break
+        except:
+            pass
 
     # print(html.text)
     soup = BeautifulSoup(html.text, 'html.parser')
